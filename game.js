@@ -21,45 +21,45 @@
 const ARCADE_CONTROLS = {
   // ===== PLAYER 1 CONTROLS =====
   // Joystick - Left hand on WASD
-  'P1U': ['w'],
-  'P1D': ['s'],
-  'P1L': ['a'],
-  'P1R': ['d'],
-  'P1DL': null,  // Diagonal down-left (no keyboard default)
-  'P1DR': null,  // Diagonal down-right (no keyboard default)
+  P1U: ["w"],
+  P1D: ["s"],
+  P1L: ["a"],
+  P1R: ["d"],
+  P1DL: null, // Diagonal down-left (no keyboard default)
+  P1DR: null, // Diagonal down-right (no keyboard default)
 
   // Action Buttons - Right hand on home row area (ergonomic!)
   // Top row (ABC): U, I, O  |  Bottom row (XYZ): J, K, L
-  'P1A': ['u'],
-  'P1B': ['i'],
-  'P1C': ['o'],
-  'P1X': ['j'],
-  'P1Y': ['k'],
-  'P1Z': ['l'],
+  P1A: ["u"],
+  P1B: ["i"],
+  P1C: ["o"],
+  P1X: ["j"],
+  P1Y: ["k"],
+  P1Z: ["l"],
 
   // Start Button
-  'START1': ['1', 'Enter'],
+  START1: ["1", "Enter"],
 
   // ===== PLAYER 2 CONTROLS =====
   // Joystick - Right hand on Arrow Keys
-  'P2U': ['ArrowUp'],
-  'P2D': ['ArrowDown'],
-  'P2L': ['ArrowLeft'],
-  'P2R': ['ArrowRight'],
-  'P2DL': null,  // Diagonal down-left (no keyboard default)
-  'P2DR': null,  // Diagonal down-right (no keyboard default)
+  P2U: ["ArrowUp"],
+  P2D: ["ArrowDown"],
+  P2L: ["ArrowLeft"],
+  P2R: ["ArrowRight"],
+  P2DL: null, // Diagonal down-left (no keyboard default)
+  P2DR: null, // Diagonal down-right (no keyboard default)
 
   // Action Buttons - Left hand (avoiding P1's WASD keys)
   // Top row (ABC): R, T, Y  |  Bottom row (XYZ): F, G, H
-  'P2A': ['r'],
-  'P2B': ['t'],
-  'P2C': ['y'],
-  'P2X': ['f'],
-  'P2Y': ['g'],
-  'P2Z': ['h'],
+  P2A: ["r"],
+  P2B: ["t"],
+  P2C: ["y"],
+  P2X: ["f"],
+  P2Y: ["g"],
+  P2Z: ["h"],
 
   // Start Button
-  'START2': ['2']
+  START2: ["2"],
 };
 
 // Build reverse lookup: keyboard key → arcade button code
@@ -68,7 +68,7 @@ for (const [arcadeCode, keyboardKeys] of Object.entries(ARCADE_CONTROLS)) {
   if (keyboardKeys) {
     // Handle both array and single value
     const keys = Array.isArray(keyboardKeys) ? keyboardKeys : [keyboardKeys];
-    keys.forEach(key => {
+    keys.forEach((key) => {
       KEYBOARD_TO_ARCADE[key] = arcadeCode;
     });
   }
@@ -78,11 +78,11 @@ const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  backgroundColor: '#000000',
+  backgroundColor: "#000000",
   scene: {
     create: create,
-    update: update
-  }
+    update: update,
+  },
 };
 
 const game = new Phaser.Game(config);
@@ -98,36 +98,162 @@ let scoreText;
 let titleBlocks = [];
 let gameOver = false;
 let moveTimer = 0;
-let moveDelay = 100;  // Faster initial speed (was 150ms)
+let moveDelay = 100; // Faster initial speed (was 150ms)
 let graphics;
 
 // Pixel font patterns (5x5 grid for each letter)
 const letters = {
-  P: [[1,1,1,1],[1,0,0,1],[1,1,1,1],[1,0,0,0],[1,0,0,0]],
-  L: [[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,1,1,1]],
-  A: [[0,1,1,0],[1,0,0,1],[1,1,1,1],[1,0,0,1],[1,0,0,1]],
-  T: [[1,1,1,1],[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
-  N: [[1,0,0,1],[1,1,0,1],[1,0,1,1],[1,0,0,1],[1,0,0,1]],
-  U: [[1,0,0,1],[1,0,0,1],[1,0,0,1],[1,0,0,1],[1,1,1,1]],
-  S: [[0,1,1,1],[1,0,0,0],[0,1,1,0],[0,0,0,1],[1,1,1,0]],
-  H: [[1,0,0,1],[1,0,0,1],[1,1,1,1],[1,0,0,1],[1,0,0,1]],
-  C: [[0,1,1,1],[1,0,0,0],[1,0,0,0],[1,0,0,0],[0,1,1,1]],
-  K: [[1,0,0,1],[1,0,1,0],[1,1,0,0],[1,0,1,0],[1,0,0,1]],
-  '2': [[1,1,1,0],[0,0,0,1],[0,1,1,0],[1,0,0,0],[1,1,1,1]],
-  '5': [[1,1,1,1],[1,0,0,0],[1,1,1,0],[0,0,0,1],[1,1,1,0]],
-  ':': [[0,0,0,0],[0,1,0,0],[0,0,0,0],[0,1,0,0],[0,0,0,0]],
-  R: [[1,1,1,0],[1,0,0,1],[1,1,1,0],[1,0,1,0],[1,0,0,1]],
-  D: [[1,1,1,0],[1,0,0,1],[1,0,0,1],[1,0,0,1],[1,1,1,0]],
-  E: [[1,1,1,1],[1,0,0,0],[1,1,1,0],[1,0,0,0],[1,1,1,1]]
+  P: [
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+  ],
+  L: [
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 1, 1, 1],
+  ],
+  A: [
+    [0, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+  ],
+  T: [
+    [1, 1, 1, 1],
+    [0, 1, 0, 0],
+    [0, 1, 0, 0],
+    [0, 1, 0, 0],
+    [0, 1, 0, 0],
+  ],
+  N: [
+    [1, 0, 0, 1],
+    [1, 1, 0, 1],
+    [1, 0, 1, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+  ],
+  U: [
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+  ],
+  S: [
+    [0, 1, 1, 1],
+    [1, 0, 0, 0],
+    [0, 1, 1, 0],
+    [0, 0, 0, 1],
+    [1, 1, 1, 0],
+  ],
+  H: [
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+  ],
+  C: [
+    [0, 1, 1, 1],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [1, 0, 0, 0],
+    [0, 1, 1, 1],
+  ],
+  K: [
+    [1, 0, 0, 1],
+    [1, 0, 1, 0],
+    [1, 1, 0, 0],
+    [1, 0, 1, 0],
+    [1, 0, 0, 1],
+  ],
+  2: [
+    [1, 1, 1, 0],
+    [0, 0, 0, 1],
+    [0, 1, 1, 0],
+    [1, 0, 0, 0],
+    [1, 1, 1, 1],
+  ],
+  5: [
+    [1, 1, 1, 1],
+    [1, 0, 0, 0],
+    [1, 1, 1, 0],
+    [0, 0, 0, 1],
+    [1, 1, 1, 0],
+  ],
+  ":": [
+    [0, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0],
+  ],
+  R: [
+    [1, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 1, 1, 0],
+    [1, 0, 1, 0],
+    [1, 0, 0, 1],
+  ],
+  D: [
+    [1, 1, 1, 0],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 0, 0, 1],
+    [1, 1, 1, 0],
+  ],
+  E: [
+    [1, 1, 1, 1],
+    [1, 0, 0, 0],
+    [1, 1, 1, 0],
+    [1, 0, 0, 0],
+    [1, 1, 1, 1],
+  ],
 };
 
 // Bold font for ARCADE (filled/solid style)
 const boldLetters = {
-  A: [[1,1,1,1,1],[1,1,0,1,1],[1,1,1,1,1],[1,1,0,1,1],[1,1,0,1,1]],
-  R: [[1,1,1,1,0],[1,1,0,1,1],[1,1,1,1,0],[1,1,0,1,1],[1,1,0,1,1]],
-  C: [[1,1,1,1,1],[1,1,0,0,0],[1,1,0,0,0],[1,1,0,0,0],[1,1,1,1,1]],
-  D: [[1,1,1,1,0],[1,1,0,1,1],[1,1,0,1,1],[1,1,0,1,1],[1,1,1,1,0]],
-  E: [[1,1,1,1,1],[1,1,0,0,0],[1,1,1,1,0],[1,1,0,0,0],[1,1,1,1,1]]
+  A: [
+    [1, 1, 1, 1, 1],
+    [1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 1],
+    [1, 1, 0, 1, 1],
+    [1, 1, 0, 1, 1],
+  ],
+  R: [
+    [1, 1, 1, 1, 0],
+    [1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 0],
+    [1, 1, 0, 1, 1],
+    [1, 1, 0, 1, 1],
+  ],
+  C: [
+    [1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0],
+    [1, 1, 0, 0, 0],
+    [1, 1, 0, 0, 0],
+    [1, 1, 1, 1, 1],
+  ],
+  D: [
+    [1, 1, 1, 1, 0],
+    [1, 1, 0, 1, 1],
+    [1, 1, 0, 1, 1],
+    [1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 0],
+  ],
+  E: [
+    [1, 1, 1, 1, 1],
+    [1, 1, 0, 0, 0],
+    [1, 1, 1, 1, 0],
+    [1, 1, 0, 0, 0],
+    [1, 1, 1, 1, 1],
+  ],
 };
 
 function create() {
@@ -138,68 +264,75 @@ function create() {
   // PLATANUS: 8 letters × (4 cols + 1 spacing) = 40 blocks, but last letter no spacing = 39 blocks × 15px = 585px
   let x = Math.floor((800 - 585) / 2 / snakeSize) * snakeSize;
   let y = Math.floor(180 / snakeSize) * snakeSize;
-  'PLATANUS'.split('').forEach(char => {
+  "PLATANUS".split("").forEach((char) => {
     x = drawLetter(char, x, y, 0x00ffff);
   });
 
   // HACK: 4 letters × (4 cols + 1 spacing) = 20 blocks, but last letter no spacing = 19 blocks × 15px = 285px
   x = Math.floor((800 - 285) / 2 / snakeSize) * snakeSize;
   y = Math.floor(280 / snakeSize) * snakeSize;
-  'HACK'.split('').forEach(char => {
+  "HACK".split("").forEach((char) => {
     x = drawLetter(char, x, y, 0x00ffff);
   });
 
   // ARCADE: 6 letters × (5 cols + 1 spacing) = 36 blocks, but last letter no spacing = 35 blocks × 15px = 525px
   x = Math.floor((800 - 525) / 2 / snakeSize) * snakeSize;
   y = Math.floor(380 / snakeSize) * snakeSize;
-  'ARCADE'.split('').forEach(char => {
+  "ARCADE".split("").forEach((char) => {
     x = drawLetter(char, x, y, 0xff00ff, true);
   });
 
   // Score display
-  scoreText = this.add.text(16, 16, 'Score: 0', {
-    fontSize: '24px',
-    fontFamily: 'Arial, sans-serif',
-    color: '#00ff00'
+  scoreText = this.add.text(16, 16, "Score: 0", {
+    fontSize: "24px",
+    fontFamily: "Arial, sans-serif",
+    color: "#00ff00",
   });
 
   // Instructions
-  this.add.text(400, 560, 'Use Joystick to Move | Avoid Walls, Yourself & The Title!', {
-    fontSize: '16px',
-    fontFamily: 'Arial, sans-serif',
-    color: '#888888',
-    align: 'center'
-  }).setOrigin(0.5);
+  this.add
+    .text(
+      400,
+      560,
+      "Use Joystick to Move | Avoid Walls, Yourself & The Title!",
+      {
+        fontSize: "16px",
+        fontFamily: "Arial, sans-serif",
+        color: "#888888",
+        align: "center",
+      }
+    )
+    .setOrigin(0.5);
 
   // Initialize snake (start top left)
   snake = [
     { x: 75, y: 60 },
     { x: 60, y: 60 },
-    { x: 45, y: 60 }
+    { x: 45, y: 60 },
   ];
 
   // Spawn initial food
   spawnFood();
 
   // Keyboard and Arcade Button input
-  this.input.keyboard.on('keydown', (event) => {
+  this.input.keyboard.on("keydown", (event) => {
     // Normalize keyboard input to arcade codes for easier testing
     const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
 
     // Restart game (arcade buttons only)
-    if (gameOver && (key === 'P1A' || key === 'START1')) {
+    if (gameOver && (key === "P1A" || key === "START1")) {
       restartGame(scene);
       return;
     }
 
     // Direction controls (keyboard keys get mapped to arcade codes)
-    if (key === 'P1U' && direction.y === 0) {
+    if (key === "P1U" && direction.y === 0) {
       nextDirection = { x: 0, y: -1 };
-    } else if (key === 'P1D' && direction.y === 0) {
+    } else if (key === "P1D" && direction.y === 0) {
       nextDirection = { x: 0, y: 1 };
-    } else if (key === 'P1L' && direction.x === 0) {
+    } else if (key === "P1L" && direction.x === 0) {
       nextDirection = { x: -1, y: 0 };
-    } else if (key === 'P1R' && direction.x === 0) {
+    } else if (key === "P1R" && direction.x === 0) {
       nextDirection = { x: 1, y: 0 };
     }
   });
@@ -240,7 +373,7 @@ function moveSnake(scene) {
   const head = snake[0];
   const newHead = {
     x: head.x + direction.x * snakeSize,
-    y: head.y + direction.y * snakeSize
+    y: head.y + direction.y * snakeSize,
   };
 
   // Check wall collision
@@ -270,11 +403,12 @@ function moveSnake(scene) {
   // Check food collision
   if (newHead.x === food.x && newHead.y === food.y) {
     score += 10;
-    scoreText.setText('Score: ' + score);
+    scoreText.setText("Score: " + score);
     spawnFood();
     playTone(scene, 880, 0.1);
 
-    if (moveDelay > 50) {  // Faster max speed (was 80ms)
+    if (moveDelay > 50) {
+      // Faster max speed (was 80ms)
       moveDelay -= 2;
     }
   } else {
@@ -320,7 +454,7 @@ function drawGame() {
   graphics.clear();
 
   // Draw title blocks
-  titleBlocks.forEach(block => {
+  titleBlocks.forEach((block) => {
     graphics.fillStyle(block.color, 1);
     graphics.fillRect(block.x, block.y, snakeSize - 2, snakeSize - 2);
   });
@@ -350,14 +484,16 @@ function endGame(scene) {
   overlay.fillRect(0, 0, 800, 600);
 
   // Game Over title with glow effect
-  const gameOverText = scene.add.text(400, 300, 'GAME OVER', {
-    fontSize: '64px',
-    fontFamily: 'Arial, sans-serif',
-    color: '#ff0000',
-    align: 'center',
-    stroke: '#ff6666',
-    strokeThickness: 8
-  }).setOrigin(0.5);
+  const gameOverText = scene.add
+    .text(400, 300, "GAME OVER", {
+      fontSize: "64px",
+      fontFamily: "Arial, sans-serif",
+      color: "#ff0000",
+      align: "center",
+      stroke: "#ff6666",
+      strokeThickness: 8,
+    })
+    .setOrigin(0.5);
 
   // Pulsing animation for game over text
   scene.tweens.add({
@@ -367,28 +503,32 @@ function endGame(scene) {
     duration: 800,
     yoyo: true,
     repeat: -1,
-    ease: 'Sine.easeInOut'
+    ease: "Sine.easeInOut",
   });
 
   // Score display
-  scene.add.text(400, 400, 'SCORE: ' + score, {
-    fontSize: '36px',
-    fontFamily: 'Arial, sans-serif',
-    color: '#00ffff',
-    align: 'center',
-    stroke: '#000000',
-    strokeThickness: 4
-  }).setOrigin(0.5);
+  scene.add
+    .text(400, 400, "SCORE: " + score, {
+      fontSize: "36px",
+      fontFamily: "Arial, sans-serif",
+      color: "#00ffff",
+      align: "center",
+      stroke: "#000000",
+      strokeThickness: 4,
+    })
+    .setOrigin(0.5);
 
   // Restart instruction with subtle animation
-  const restartText = scene.add.text(400, 480, 'Press Button A or START to Restart', {
-    fontSize: '24px',
-    fontFamily: 'Arial, sans-serif',
-    color: '#ffff00',
-    align: 'center',
-    stroke: '#000000',
-    strokeThickness: 3
-  }).setOrigin(0.5);
+  const restartText = scene.add
+    .text(400, 480, "Press Button A or START to Restart", {
+      fontSize: "24px",
+      fontFamily: "Arial, sans-serif",
+      color: "#ffff00",
+      align: "center",
+      stroke: "#000000",
+      strokeThickness: 3,
+    })
+    .setOrigin(0.5);
 
   // Blinking animation for restart text
   scene.tweens.add({
@@ -397,7 +537,7 @@ function endGame(scene) {
     duration: 600,
     yoyo: true,
     repeat: -1,
-    ease: 'Sine.easeInOut'
+    ease: "Sine.easeInOut",
   });
 }
 
@@ -405,14 +545,14 @@ function restartGame(scene) {
   snake = [
     { x: 75, y: 60 },
     { x: 60, y: 60 },
-    { x: 45, y: 60 }
+    { x: 45, y: 60 },
   ];
   direction = { x: 1, y: 0 };
   nextDirection = { x: 1, y: 0 };
   score = 0;
   gameOver = false;
-  moveDelay = 100;  // Match new faster initial speed
-  scoreText.setText('Score: 0');
+  moveDelay = 100; // Match new faster initial speed
+  scoreText.setText("Score: 0");
   spawnFood();
   scene.scene.restart();
 }
@@ -426,10 +566,13 @@ function playTone(scene, frequency, duration) {
   gainNode.connect(audioContext.destination);
 
   oscillator.frequency.value = frequency;
-  oscillator.type = 'square';
+  oscillator.type = "square";
 
   gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+  gainNode.gain.exponentialRampToValueAtTime(
+    0.01,
+    audioContext.currentTime + duration
+  );
 
   oscillator.start(audioContext.currentTime);
   oscillator.stop(audioContext.currentTime + duration);
